@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# parameter 1: work directory
+# parameter 2: case name
+
+set -e
+
+workdir=$1
+case_name=$2
+
+cd $workdir
+
+cd $pwd
