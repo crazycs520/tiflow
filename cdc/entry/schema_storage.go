@@ -14,6 +14,7 @@
 package entry
 
 import (
+	"encoding/json"
 	"fmt"
 	"sort"
 	"sync"
@@ -45,6 +46,22 @@ type schemaSnapshot struct {
 	ineligibleTableID map[int64]struct{}
 
 	currentTs uint64
+}
+
+func (s *schemaSnapshot) String() string {
+	status := make(map[string]interface{})
+	status["tableIDToName"] = s.tableIDToName
+	status["schemaNameToID"] = s.schemaNameToID
+	status["schemas"] = s.schemas
+	status["tables"] = s.tables
+	status["truncateTableID"] = s.truncateTableID
+	status["ineligibleTableID"] = s.ineligibleTableID
+	status["currentTs"] = s.currentTs
+	statusStr, err := json.MarshalIndent(status, "\t", "\t")
+	if err != nil {
+		log.Fatal("err in string", zap.Error(err))
+	}
+	return string(statusStr)
 }
 
 func newEmptySchemaSnapshot() *schemaSnapshot {
@@ -619,6 +636,7 @@ func (s *SchemaStorage) HandleDDLJob(job *timodel.Job) error {
 	}
 	snap := lastSnap.Clone()
 	if err := snap.handleDDL(job); err != nil {
+		log.Error("Handle DDL failed", zap.Uint64("currentTs", lastSnap.currentTs), zap.Reflect("job", job), zap.Stringer("lastSnap", lastSnap), zap.Error(err))
 		return errors.Trace(err)
 	}
 	s.snaps = append(s.snaps, snap)

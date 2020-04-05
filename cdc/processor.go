@@ -344,6 +344,7 @@ func (p *processor) ddlPullWorker(ctx context.Context) error {
 		if job == nil {
 			continue
 		}
+		log.Info("handle ddl in processor", zap.Reflect("job", job))
 		if err := p.schemaStorage.HandleDDLJob(job); err != nil {
 			return errors.Trace(err)
 		}
