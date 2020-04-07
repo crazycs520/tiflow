@@ -193,6 +193,7 @@ func (m *mounterImpl) unmarshalAndMountRowChanged(raw *model.RawKVEntry) (*model
 			log.Debug("skip the DML of truncated table", zap.Uint64("ts", raw.Ts), zap.Int64("tableID", tableID))
 			return nil, nil
 		}
+		log.Error("error when find table info", zap.Uint64("ts", raw.Ts), zap.Stringer("snap", snap), zap.Error(err))
 		return nil, errors.NotFoundf("table in schema storage, id: %d", tableID)
 	}
 	switch {
